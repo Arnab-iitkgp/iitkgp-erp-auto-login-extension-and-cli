@@ -851,6 +851,67 @@ input:checked + .slider:before {
   border-color: rgba(148, 163, 184, 0.22) !important;
 }
 
+.summary-row.summary-row-email {
+  min-height: 48px;
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.dash-inbox-subline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.dash-inbox-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #38bdf8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  line-height: 1;
+}
+
+.dash-inbox-link:hover {
+  color: #93c5fd;
+  text-decoration: underline;
+}
+
+.dash-inbox-dot {
+  font-size: 8px;
+  color: #64748b;
+  line-height: 1;
+}
+
+.dash-inbox-hint {
+  font-size: 9.5px;
+  color: #8da2bb;
+  line-height: 1;
+}
+
+.dash-relink-btn {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.dash-relink-btn:hover {
+  color: #93c5fd;
+}
+
 /* OTP Fetch Mode Segmented Control */
 .otp-pill-toggle {
   display: inline-flex;

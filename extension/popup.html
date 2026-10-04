@@ -63,7 +63,7 @@
         <div class="summary-divider"></div>
 
         <!-- Linked Email Row -->
-        <div class="summary-row">
+        <div class="summary-row summary-row-email">
           <div class="summary-icon-box" id="dashEmailIconBox">
             <svg id="dashGoogleLogo" width="16" height="16" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
@@ -76,6 +76,18 @@
           <div class="summary-content">
             <span class="summary-label">OTP EMAIL</span>
             <span class="summary-val" id="dashEmail">--</span>
+            <div class="dash-inbox-subline" id="dashInboxSubline" style="display: none;">
+              <a href="#" id="openInboxBtn" class="dash-inbox-link" title="Open this Gmail inbox in a new tab">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                  <polyline points="15 3 21 3 21 9"/>
+                  <line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+                <span>Open Inbox ↗</span>
+              </a>
+              <span class="dash-inbox-dot">•</span>
+              <span class="dash-inbox-hint">Wrong mailbox? <button type="button" id="dashRelinkBtn" class="dash-relink-btn">Re-link in ⚙</button></span>
+            </div>
           </div>
           <span class="summary-badge" id="dashEmailBadge">✓ Verified</span>
         </div>

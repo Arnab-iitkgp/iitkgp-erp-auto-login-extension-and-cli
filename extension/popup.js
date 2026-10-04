@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const dashRoll = document.getElementById("dashRoll");
   const dashEmail = document.getElementById("dashEmail");
   const dashEmailBadge = document.getElementById("dashEmailBadge");
+  const dashInboxSubline = document.getElementById("dashInboxSubline");
+  const openInboxBtn = document.getElementById("openInboxBtn");
+  const dashRelinkBtn = document.getElementById("dashRelinkBtn");
   const dashGoogleLogo = document.getElementById("dashGoogleLogo");
   const dashKgpLogo = document.getElementById("dashKgpLogo");
   const dashQuestions = document.getElementById("dashQuestions");
@@ -331,6 +334,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateDashEmailBrand(data.gmailEmail || "");
     updateOtpModeUI(data.otpFetchMode || (data.gmailEmail ? "auto" : "manual"));
 
+    if (dashInboxSubline) {
+      dashInboxSubline.style.display = data.gmailEmail ? "flex" : "none";
+    }
+
     const qCount = data.securityQuestions && typeof data.securityQuestions === "object"
       ? Object.keys(data.securityQuestions).length
       : 0;
@@ -340,6 +347,25 @@ document.addEventListener("DOMContentLoaded", () => {
     activeDashboardView.style.display = "flex";
     settingsForm.style.display = "none";
     editModeBar.style.display = "none";
+  }
+
+  // Open Inbox link on Dashboard
+  if (openInboxBtn) {
+    openInboxBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const accountIndex = currentStoredData?.gmailAccountIndex ?? 0;
+      chrome.tabs.create({ url: `https://mail.google.com/mail/u/${accountIndex}/#inbox` });
+    });
+  }
+
+  // Quick re-link button from Dashboard to Settings
+  if (dashRelinkBtn) {
+    dashRelinkBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (settingsUnlockTriggerBtn) {
+        settingsUnlockTriggerBtn.click();
+      }
+    });
   }
 
   function switchToSetupView(isEdit = false) {
