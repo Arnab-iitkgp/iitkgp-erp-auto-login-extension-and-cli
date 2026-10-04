@@ -151,8 +151,8 @@
           <!-- Interactive Shortcuts Mini-List -->
           <div class="shortcuts-list" id="shortcutsList">
             <!-- 1. ERP Home -->
-            <div class="shortcut-item" id="quickLaunchHome" role="button" tabindex="0" title="Click to open ERP Home">
-              <span class="shortcut-title">ERP Home</span>
+            <div class="shortcut-item" id="quickLaunchHome" role="button" tabindex="0" title="Click to open ERP Home & start auto-login">
+              <span class="shortcut-title">ERP Home <span class="shortcut-subtitle">/ Auto Login</span></span>
               <div class="shortcut-item-right">
                 <span class="hotkey-group" id="hotkeyHome">
                   <kbd class="hotkey-key">Alt</kbd>
@@ -650,6 +650,20 @@
             <div class="faq-q">Where are my credentials saved?</div>
             <div class="faq-a">
               Stored 100% locally on your machine in Chrome's isolated local storage. Zero external servers, zero telemetry.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">"Gmail not signed in" error right after opening browser?</div>
+            <div class="faq-a">
+              This is usually a false alarm. When the browser cold-starts, it can take a few seconds for your Gmail session cookies to become active. The extension now waits and retries for up to 20 seconds before showing this error. If it still appears, open Gmail in a tab, confirm you are signed in, then close and reopen the ERP tab.
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">Gmail account slot changed &mdash; OTP not being picked up?</div>
+            <div class="faq-a">
+              When you add, remove, or sign out of a Google account, Chrome can reorder which account sits in which slot (<em>u/0, u/1, u/2&hellip;</em>). The extension polls the slot it last detected. Fix it in one click: open <strong>Settings &rarr;</strong> click <strong>Check</strong> next to <em>EMAIL FOR OTP</em> to re-detect your current slot.
             </div>
           </div>
         </div>

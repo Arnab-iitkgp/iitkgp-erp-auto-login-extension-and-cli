@@ -1023,8 +1023,20 @@ input:checked + .slider:before {
   transition: color 0.15s ease;
 }
 
+.shortcut-subtitle {
+  font-size: 10px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 2px;
+  transition: color 0.15s ease;
+}
+
 .shortcut-item:hover .shortcut-title {
   color: #ffffff;
+}
+
+.shortcut-item:hover .shortcut-subtitle {
+  color: #93c5fd;
 }
 
 .shortcut-item-right {

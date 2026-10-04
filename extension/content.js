@@ -640,7 +640,7 @@
             // Handle 90-second TIMEOUT (as explicitly requested by user)
             if (response && response.error === "TIMEOUT") {
               updateBannerStatus(
-                `⚠️ <strong>OTP not found within 90s.</strong> Please check your Gmail and fill the OTP manually.`,
+                `⚠️ <strong>OTP not found within 90s.</strong> Check your Gmail and fill the OTP manually. See <strong>FAQ</strong> in the extension popup if this keeps happening.`,
                 "warning"
               );
 
@@ -661,7 +661,7 @@
             // Handle Gmail auth failure
             if (response && response.error === "AUTH_REQUIRED") {
               updateBannerStatus(
-                `⚠️ Gmail not signed in. Please sign into Gmail in this browser, then fill OTP manually.`,
+                `⚠️ Gmail not signed in — or browser just started (cookies may still be loading). Sign into Gmail in this browser, then retry. See <strong>FAQ</strong> in the extension popup for details.`,
                 "error"
               );
               if (otpInput) {

@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/kgp-erp-cli.svg?color=cb3837&label=npm)](https://www.npmjs.com/package/kgp-erp-cli)
 [![downloads](https://img.shields.io/npm/dt/kgp-erp-cli.svg?color=blue)](https://www.npmjs.com/package/kgp-erp-cli)
 [![license](https://img.shields.io/npm/l/kgp-erp-cli.svg?color=green)](./LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Coming_Soon-orange?logo=googlechrome&logoColor=white)](#browser-extension)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Available-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/iit-kgp-erp-auto-login/fibflebfamhaodekkndebapjlogahebb)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?logo=windowsterminal&logoColor=white)](#)
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](#)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](#)
@@ -11,8 +11,7 @@
 
 Auto-login for IIT Kharagpur ERP. Enters your roll number and password, answers the security question, grabs the OTP from Gmail, and signs you in.
 
-
-> **Note**: Chrome Web Store release is coming soon. In the meantime, you can load the extension unpacked in under a minute via Developer Mode.
+> **Install Extension**: Available on the [Chrome Web Store](https://chromewebstore.google.com/detail/iit-kgp-erp-auto-login/fibflebfamhaodekkndebapjlogahebb) or load it unpacked from source in under a minute via Developer Mode.
 
 ---
 
@@ -20,7 +19,7 @@ Auto-login for IIT Kharagpur ERP. Enters your roll number and password, answers 
 
 - [Browser Extension](#browser-extension)
   - [Features](#extension-features)
-  - [Install (Load Unpacked)](#extension-setup-load-unpacked)
+  - [Installation](#extension-installation)
   - [Shortcut](#extension-shortcut)
 - [CLI Tool](#cli-tool)
   - [Features](#cli-features)
@@ -37,7 +36,7 @@ Auto-login for IIT Kharagpur ERP. Enters your roll number and password, answers 
 <a id="browser-extension"></a>
 ## Browser Extension
 
-[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Coming_Soon-orange?logo=googlechrome&logoColor=white)](#browser-extension)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install_Extension-blue?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/iit-kgp-erp-auto-login/fibflebfamhaodekkndebapjlogahebb)
 
 <p align="center">
   <img src="extension/icons/logo.png" width="155" alt="IIT KGP ERP Extension Logo" />
@@ -55,8 +54,14 @@ Works on Chrome, Brave, Edge, and other Chromium browsers.
 - **Doesn't get stuck**: If an OTP takes longer than 90s or Gmail isn't signed in, it highlights the OTP box and lets you enter it manually instead of refreshing endlessly.
 - **Built-in FAQ**: Quick answers in the popup for multi-account Gmail setups and login issues. Still running into problems? [Open an issue on GitHub](https://github.com/Arnab-iitkgp/erp-auto-login-cli/issues).
 
-<a id="extension-setup-load-unpacked"></a>
-### Install (Load Unpacked)
+<a id="extension-installation"></a>
+### Installation
+
+#### Option 1: Chrome Web Store (Recommended)
+
+👉 **[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/iit-kgp-erp-auto-login/fibflebfamhaodekkndebapjlogahebb)** with 1 click.
+
+#### Option 2: Load Unpacked (From Source)
 
 1. Clone or download this repo:
    ```bash

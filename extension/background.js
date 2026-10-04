@@ -160,6 +160,14 @@ async function pollForOtp({ tabId, accountIndex = 0, startTime = Date.now(), pre
 
   console.log(`[ERP Background] Starting OTP poll for tab ${tabId} on account u/${accountIndex}... Timeout: ${timeoutMs}ms (UID feature flag: ${isUidFeatureEnabled}, snapshot: ${snapshotSet.size} items)`);
 
+  // Cold-start grace: MV3 service workers can wake before the browser's network
+  // session associates Google cookies, causing a transient 401 even when signed in.
+  // Allow up to COLD_START_GRACE_RETRIES consecutive 401s before treating as real failure.
+  // 10 retries × 2s each = ~20s grace window — enough to cover any cold-boot delay.
+  const COLD_START_GRACE_RETRIES = 10;
+  let consecutiveAuthFailures = 0;
+  const pollStartTime = Date.now();
+
   while (Date.now() < deadline) {
     const job = activePolls.get(tabId);
     if (!job || job.aborted || job.id !== pollId) {
@@ -171,11 +179,31 @@ async function pollForOtp({ tabId, accountIndex = 0, startTime = Date.now(), pre
       const res = await fetch(url, { method: "GET", credentials: "include" });
 
       if (res.status === 401 || res.status === 403) {
+        consecutiveAuthFailures++;
+        const elapsed = ((Date.now() - pollStartTime) / 1000).toFixed(1);
+
+        if (consecutiveAuthFailures <= COLD_START_GRACE_RETRIES) {
+          // Possibly a cold-start race — log and keep retrying silently
+          console.warn(`[ERP Cold-Start] 401 on attempt #${consecutiveAuthFailures} at t=${elapsed}s — may be browser startup race, retrying...`);
+          await new Promise((resolve) => setTimeout(resolve, pollInterval));
+          continue;
+        }
+
+        // Sustained 401s past grace period → genuinely not signed in
+        console.error(`[ERP Cold-Start] Persistent 401 after ${consecutiveAuthFailures} attempts (${elapsed}s) — Gmail genuinely not signed in.`);
+        activePolls.delete(tabId);
         return {
           success: false,
           error: "AUTH_REQUIRED",
           message: "Not signed in to Gmail. Please open and sign into Gmail in this browser.",
         };
+      }
+
+      // Recovered from transient 401s — log recovery timing
+      if (consecutiveAuthFailures > 0) {
+        const elapsed = ((Date.now() - pollStartTime) / 1000).toFixed(1);
+        console.log(`[ERP Cold-Start] ✅ Recovered after ${consecutiveAuthFailures} transient 401(s) at t=${elapsed}s — cookies now ready!`);
+        consecutiveAuthFailures = 0;
       }
 
       if (res.ok) {
