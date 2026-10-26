@@ -158,10 +158,17 @@
     });
   }
 
-  // Listen for live toggle events from popup
+  // Listen for live messages from background/popup
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === "TOGGLE_DARK_MODE") {
       applyDarkMode(Boolean(msg.enabled));
+    }
+    if (msg.type === "OTP_POLL_STATUS") {
+      if (msg.status === "warming_up") {
+        updateBannerStatus("🔄 Warming up Gmail session (one-time)...", "info");
+      } else if (msg.status === "polling") {
+        updateBannerStatus("Checking your Gmail for incoming OTP...", "info");
+      }
     }
   });
 
@@ -661,7 +668,7 @@
             // Handle Gmail auth failure
             if (response && response.error === "AUTH_REQUIRED") {
               updateBannerStatus(
-                `⚠️ Gmail not signed in — or browser just started (cookies may still be loading). Sign into Gmail in this browser, then retry. See <strong>FAQ</strong> in the extension popup for details.`,
+                `⚠️ Gmail not signed in. Please open and sign into Gmail in this browser, then retry. See <strong>FAQ</strong> in the extension popup for details.`,
                 "error"
               );
               if (otpInput) {

@@ -142,6 +142,69 @@ function extractOtpUsingUidSnapshot(xml, snapshotSet) {
 }
 
 /**
+ * Warms up Gmail cookies by briefly loading Gmail in an inactive background tab.
+ * In Chrome/Edge MV3, session cookies from google.com aren't populated into the
+ * extension's fetch network context on cold browser start until a tab on the domain
+ * has been loaded.
+ */
+async function warmUpGmailCookies(accountIndex = 0) {
+  const url = `https://mail.google.com/mail/u/${accountIndex}/`;
+  let tab = null;
+  try {
+    console.log(`[ERP Warmup] Opening background tab for u/${accountIndex} to hydrate cookies...`);
+    tab = await chrome.tabs.create({ url, active: false });
+    if (!tab || !tab.id) return;
+
+    if (tab.status !== "complete") {
+      await new Promise((resolve) => {
+        let cleanup = () => {};
+        const timeout = setTimeout(() => {
+          console.warn("[ERP Warmup] Tab load timeout (10s) reached, closing warmup tab...");
+          cleanup();
+          resolve();
+        }, 10000); // 10s safety net
+
+        function updatedListener(tabId, info) {
+          if (tabId === tab.id && info.status === "complete") {
+            console.log("[ERP Warmup] Gmail tab loaded completely (status === complete).");
+            cleanup();
+            resolve();
+          }
+        }
+
+        function removedListener(tabId) {
+          if (tabId === tab.id) {
+            console.log("[ERP Warmup] Warmup tab was closed before completion.");
+            cleanup();
+            resolve();
+          }
+        }
+
+        cleanup = () => {
+          clearTimeout(timeout);
+          chrome.tabs.onUpdated.removeListener(updatedListener);
+          chrome.tabs.onRemoved.removeListener(removedListener);
+        };
+
+        chrome.tabs.onUpdated.addListener(updatedListener);
+        chrome.tabs.onRemoved.addListener(removedListener);
+      });
+    }
+  } catch (err) {
+    console.warn("[ERP Warmup] Error during Gmail tab warmup:", err);
+  } finally {
+    if (tab && tab.id) {
+      try {
+        await chrome.tabs.remove(tab.id);
+        console.log("[ERP Warmup] Closed background warmup tab.");
+      } catch (e) {
+        // Tab might already have been closed
+      }
+    }
+  }
+}
+
+/**
  * Polls the Gmail Atom feed for an ERP OTP email.
  */
 async function pollForOtp({ tabId, accountIndex = 0, startTime = Date.now(), preSnapshotIds = [], timeoutMs = 90000 }) {
@@ -160,11 +223,7 @@ async function pollForOtp({ tabId, accountIndex = 0, startTime = Date.now(), pre
 
   console.log(`[ERP Background] Starting OTP poll for tab ${tabId} on account u/${accountIndex}... Timeout: ${timeoutMs}ms (UID feature flag: ${isUidFeatureEnabled}, snapshot: ${snapshotSet.size} items)`);
 
-  // Cold-start grace: MV3 service workers can wake before the browser's network
-  // session associates Google cookies, causing a transient 401 even when signed in.
-  // Allow up to COLD_START_GRACE_RETRIES consecutive 401s before treating as real failure.
-  // 10 retries × 2s each = ~20s grace window — enough to cover any cold-boot delay.
-  const COLD_START_GRACE_RETRIES = 10;
+  let warmedUp = false;
   let consecutiveAuthFailures = 0;
   const pollStartTime = Date.now();
 
@@ -182,27 +241,60 @@ async function pollForOtp({ tabId, accountIndex = 0, startTime = Date.now(), pre
         consecutiveAuthFailures++;
         const elapsed = ((Date.now() - pollStartTime) / 1000).toFixed(1);
 
-        if (consecutiveAuthFailures <= COLD_START_GRACE_RETRIES) {
-          // Possibly a cold-start race — log and keep retrying silently
-          console.warn(`[ERP Cold-Start] 401 on attempt #${consecutiveAuthFailures} at t=${elapsed}s — may be browser startup race, retrying...`);
-          await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        if (!warmedUp) {
+          warmedUp = true;
+          console.log(`[ERP Cold-Start] 401 on attempt #${consecutiveAuthFailures} at t=${elapsed}s — warming up Gmail cookies...`);
+
+          // Notify content script to update banner
+          if (typeof tabId === "number") {
+            chrome.tabs.sendMessage(tabId, {
+              type: "OTP_POLL_STATUS",
+              status: "warming_up",
+            }).catch(() => {});
+          }
+
+          await warmUpGmailCookies(accountIndex);
+
+          // Notify content script that warmup is done and polling resumed
+          if (typeof tabId === "number") {
+            chrome.tabs.sendMessage(tabId, {
+              type: "OTP_POLL_STATUS",
+              status: "polling",
+            }).catch(() => {});
+          }
+
+          // Check if poll was aborted during warmup
+          const currentJob = activePolls.get(tabId);
+          if (!currentJob || currentJob.aborted || currentJob.id !== pollId) {
+            console.log(`[ERP Background] Poll aborted during warmup for tab ${tabId}`);
+            return { success: false, error: "ABORTED" };
+          }
+
+          // Small delay for cookie context to settle before next fetch
+          await new Promise((resolve) => setTimeout(resolve, 500));
           continue;
         }
 
-        // Sustained 401s past grace period → genuinely not signed in
-        console.error(`[ERP Cold-Start] Persistent 401 after ${consecutiveAuthFailures} attempts (${elapsed}s) — Gmail genuinely not signed in.`);
-        activePolls.delete(tabId);
-        return {
-          success: false,
-          error: "AUTH_REQUIRED",
-          message: "Not signed in to Gmail. Please open and sign into Gmail in this browser.",
-        };
+        // Already warmed up once this session, but still getting 401/403:
+        if (consecutiveAuthFailures > 2) {
+          console.error(`[ERP Cold-Start] Persistent 401 after warmup and ${consecutiveAuthFailures} attempts (${elapsed}s) — Gmail genuinely not signed in.`);
+          activePolls.delete(tabId);
+          return {
+            success: false,
+            error: "AUTH_REQUIRED",
+            message: "Not signed in to Gmail. Please open and sign into Gmail in this browser.",
+          };
+        }
+
+        console.warn(`[ERP Cold-Start] Post-warmup retry #${consecutiveAuthFailures} at t=${elapsed}s...`);
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        continue;
       }
 
-      // Recovered from transient 401s — log recovery timing
+      // Recovered from 401s — log recovery timing
       if (consecutiveAuthFailures > 0) {
         const elapsed = ((Date.now() - pollStartTime) / 1000).toFixed(1);
-        console.log(`[ERP Cold-Start] ✅ Recovered after ${consecutiveAuthFailures} transient 401(s) at t=${elapsed}s — cookies now ready!`);
+        console.log(`[ERP Cold-Start] ✅ Recovered after ${consecutiveAuthFailures} 401(s) at t=${elapsed}s — cookies now ready!`);
         consecutiveAuthFailures = 0;
       }
 
