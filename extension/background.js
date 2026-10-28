@@ -549,6 +549,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.type === "BOOTSTRAP_CDC_SESSION") {
+    bootstrapCdcSession().then((success) => sendResponse({ success }));
+    return true;
+  }
+
   if (request.type === "FORCE_RELOGIN") {
     const targetTabId = sender.tab ? sender.tab.id : null;
     forceReLogin(targetTabId).then(() => sendResponse({ success: true }));
@@ -700,7 +705,7 @@ async function forceLogoutAndPurge() {
   try {
     await chrome.storage.local.remove(["latestSsoToken"]);
     if (chrome.storage && chrome.storage.session) {
-      await chrome.storage.session.remove(["latestSsoToken", "postLoginRedirect"]);
+      await chrome.storage.session.remove(["latestSsoToken", "postLoginRedirect", "cdcSessionBootstrapped"]);
     }
   } catch (e) {}
 }
@@ -789,11 +794,54 @@ async function ensureSsoTokenCookie() {
 }
 
 /**
+ * Bootstraps the CDC student session in the background.
+ * Notice.jsp displays notices but does not initialize student profile attributes
+ * (such as roll number and CDC authorizations) in the Tomcat session, causing
+ * AdmFilePDF.htm (notice downloads) to return 0-byte responses.
+ * Requesting TPStudent.jsp triggers the student profile initialization in
+ * TrainingPlacementSSO's session, enabling notice downloads immediately.
+ */
+async function bootstrapCdcSession() {
+  try {
+    console.log("[ERP Background] Bootstrapping CDC student session via TPStudent.jsp...");
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+    const res = await fetch("https://erp.iitkgp.ac.in/TrainingPlacementSSO/TPStudent.jsp", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store",
+      redirect: "follow",
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      console.log("[ERP Background] CDC student session bootstrapped successfully.");
+      try {
+        if (chrome.storage && chrome.storage.session) {
+          await chrome.storage.session.set({ cdcSessionBootstrapped: true });
+        }
+      } catch (e) {}
+      return true;
+    } else {
+      console.warn(`[ERP Background] CDC bootstrap returned status ${res.status}`);
+      return false;
+    }
+  } catch (e) {
+    console.warn("[ERP Background] CDC session bootstrap error:", e);
+    return false;
+  }
+}
+
+/**
  * Smart CDC page launcher (Alt+C / Alt+Z):
  * 1. Checks if ERP session is alive.
  * 2. If alive, ensures ssoToken cookie is present (restores if Edge cleared it).
- * 3. Navigates to the CDC page — server can now do the SSO handshake.
- * 4. If session is dead, forces re-login.
+ * 3. If target is Notice.jsp, ensures CDC student session is bootstrapped via TPStudent.jsp
+ *    so notice PDF downloads work on the first try.
+ * 4. Navigates to the CDC page — server can now do the SSO handshake.
+ * 5. If session is dead, forces re-login.
  */
 async function launchCdcPage(targetUrl) {
   const alive = await isSessionAlive();
@@ -806,6 +854,27 @@ async function launchCdcPage(targetUrl) {
 
   // Session alive but ssoToken cookie may be missing after browser restart
   await ensureSsoTokenCookie();
+
+  // If opening Notice.jsp, ensure student profile is bootstrapped in CDC session
+  if (targetUrl.includes("Notice.jsp")) {
+    let isBootstrapped = false;
+    try {
+      if (chrome.storage && chrome.storage.session) {
+        const stored = await chrome.storage.session.get(["cdcSessionBootstrapped"]);
+        isBootstrapped = Boolean(stored.cdcSessionBootstrapped);
+      }
+    } catch (e) {}
+
+    if (!isBootstrapped) {
+      await bootstrapCdcSession();
+    }
+  } else if (targetUrl.includes("TPStudent.jsp")) {
+    try {
+      if (chrome.storage && chrome.storage.session) {
+        await chrome.storage.session.set({ cdcSessionBootstrapped: true });
+      }
+    } catch (e) {}
+  }
 
   navigateOrOpenTab(targetUrl);
 }

@@ -982,6 +982,21 @@
 
         if (isLoginPage) {
           renderInPageLoggedOutCard();
+        } else {
+          // Page is active and authenticated!
+          if (window.location.pathname.includes("TPStudent.jsp")) {
+            setSessionStorage({ cdcSessionBootstrapped: true });
+          } else if (window.location.pathname.includes("Notice.jsp")) {
+            getSessionStorage(["cdcSessionBootstrapped"]).then((data) => {
+              if (!data.cdcSessionBootstrapped) {
+                chrome.runtime.sendMessage({ type: "BOOTSTRAP_CDC_SESSION" }, (resp) => {
+                  if (resp && resp.success) {
+                    setSessionStorage({ cdcSessionBootstrapped: true });
+                  }
+                });
+              }
+            });
+          }
         }
       })
       .catch(() => {});

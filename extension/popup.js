@@ -699,13 +699,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (quickLaunchNotice) {
     quickLaunchNotice.addEventListener("click", () => {
-      navigateOrOpenTab("https://erp.iitkgp.ac.in/TrainingPlacementSSO/Notice.jsp");
+      chrome.runtime.sendMessage({
+        type: "LAUNCH_CDC",
+        url: "https://erp.iitkgp.ac.in/TrainingPlacementSSO/Notice.jsp",
+      }, () => window.close());
     });
   }
 
   if (quickLaunchCdcApp) {
     quickLaunchCdcApp.addEventListener("click", () => {
-      navigateOrOpenTab("https://erp.iitkgp.ac.in/TrainingPlacementSSO/TPStudent.jsp");
+      chrome.runtime.sendMessage({
+        type: "LAUNCH_CDC",
+        url: "https://erp.iitkgp.ac.in/TrainingPlacementSSO/TPStudent.jsp",
+      }, () => window.close());
     });
   }
 
