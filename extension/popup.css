@@ -336,10 +336,10 @@ input:checked + .slider:before {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #cbd5e1;
-  padding: 2px 7px;
+  padding: 2.5px 8px;
   border-radius: 12px;
   font-size: 9.5px;
   font-weight: 600;
@@ -349,8 +349,47 @@ input:checked + .slider:before {
 }
 
 .pill-detect-btn:hover {
-  background: rgba(59, 130, 246, 0.18);
-  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: #ffffff;
+}
+
+/* High-Visibility Fetch Questions Accent Button */
+#fetchQuestionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.38) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.55);
+  color: #93c5fd;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+  transition: all 0.2s ease;
+}
+
+#fetchQuestionBtn:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.42) 0%, rgba(37, 99, 235, 0.55) 100%);
+  border-color: #60a5fa;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.35);
+  transform: translateY(-0.5px);
+}
+
+#fetchQuestionBtn:active {
+  transform: translateY(0);
+}
+
+#fetchQuestionBtn svg {
+  color: #60a5fa;
+  transition: color 0.2s ease;
+}
+
+#fetchQuestionBtn:hover svg {
   color: #ffffff;
 }
 

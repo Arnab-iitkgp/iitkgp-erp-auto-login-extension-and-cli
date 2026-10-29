@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Cached state
   let currentStoredData = {};
+  let lastVerifiedEmail = "";
 
   // =========================================================================
   // In-App Toast System (Replaces window.alert)
@@ -420,11 +421,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (data.erpPassword) erpPassword.value = data.erpPassword;
         if (data.gmailEmail) {
           gmailEmail.value = data.gmailEmail;
+          lastVerifiedEmail = data.gmailEmail.trim().toLowerCase();
           updateSetupEmailBrandBadge(data.gmailEmail);
           if (gmailStatusText) {
             gmailStatusText.textContent = "✓ Verified";
             gmailStatusText.className = "email-status-pill verified";
           }
+        } else {
+          lastVerifiedEmail = "";
         }
         if (data.gmailAccountIndex !== undefined) {
           gmailAccountIndex.value = data.gmailAccountIndex.toString();
@@ -468,9 +472,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================================================================
   gmailEmail.addEventListener("input", () => {
     updateSetupEmailBrandBadge(gmailEmail.value);
+    const val = gmailEmail.value.trim().toLowerCase();
     if (gmailStatusText) {
-      gmailStatusText.textContent = "Ready";
-      gmailStatusText.className = "email-status-pill";
+      if (val && val === lastVerifiedEmail) {
+        gmailStatusText.textContent = "✓ Verified";
+        gmailStatusText.className = "email-status-pill verified";
+      } else {
+        gmailStatusText.textContent = val ? "Unverified" : "Ready";
+        gmailStatusText.className = "email-status-pill";
+      }
     }
   });
 
@@ -494,6 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
             gmailStatusText.textContent = "Not logged in";
             gmailStatusText.className = "email-status-pill error";
           }
+          lastVerifiedEmail = "";
           showToast("No active browser session found for this email.", "error");
           return;
         }
@@ -505,6 +516,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (matched) {
           gmailAccountIndex.value = matched.index;
+          lastVerifiedEmail = matched.email.toLowerCase();
           if (gmailStatusText) {
             gmailStatusText.textContent = "✓ Verified";
             gmailStatusText.className = "email-status-pill verified";
@@ -519,6 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
           gmailEmail.value = first.email;
           updateSetupEmailBrandBadge(first.email);
           gmailAccountIndex.value = first.index;
+          lastVerifiedEmail = first.email.toLowerCase();
           if (gmailStatusText) {
             gmailStatusText.textContent = "✓ Verified";
             gmailStatusText.className = "email-status-pill verified";
@@ -529,6 +542,7 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           showToast(`✓ Found ${first.email} (u/${first.index})`, "success");
         } else {
+          lastVerifiedEmail = "";
           if (gmailStatusText) {
             gmailStatusText.textContent = "Not logged in";
             gmailStatusText.className = "email-status-pill error";
@@ -615,8 +629,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Save Settings
-  settingsForm.addEventListener("submit", (e) => {
+  settingsForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const roll = erpRoll.value.trim();
+    const pass = erpPassword.value;
+    if (!roll || !pass) {
+      showToast("Please enter your Roll Number and Password.", "error");
+      if (!roll) erpRoll.focus();
+      else erpPassword.focus();
+      return;
+    }
 
     const questionsMap = {};
     const rows = qaContainer.querySelectorAll(".qa-split-row");
@@ -639,25 +662,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (Object.keys(questionsMap).length < 3) {
       showToast("Please fill all 3 security questions and answers.", "error");
-      if (firstEmptyAnswerInput) {
-        firstEmptyAnswerInput.focus();
-      } else if (firstEmptyQuestionInput) {
+      if (firstEmptyQuestionInput) {
         firstEmptyQuestionInput.focus();
+      } else if (firstEmptyAnswerInput) {
+        firstEmptyAnswerInput.focus();
       }
       return;
     }
 
     const emailVal = gmailEmail.value.trim();
-    // If no email entered, default OTP mode to manual; otherwise maintain chosen mode
-    const otpMode = emailVal ? (currentStoredData.otpFetchMode || "auto") : "manual";
+    let targetSlot = parseInt(gmailAccountIndex.value, 10) || 0;
+    let finalOtpMode = "manual";
+
+    if (!emailVal) {
+      // User left email blank -> Explicit Manual OTP mode
+      finalOtpMode = "manual";
+      lastVerifiedEmail = "";
+    } else {
+      const normalizedEmail = emailVal.toLowerCase();
+      const isAlreadyVerified = normalizedEmail === lastVerifiedEmail;
+
+      if (isAlreadyVerified) {
+        finalOtpMode = currentStoredData?.otpFetchMode || "auto";
+      } else {
+        // Auto-verify on Save (Option 1)
+        const originalBtnHtml = saveBtn ? saveBtn.innerHTML : "";
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = `<span>Verifying email...</span>`;
+        }
+        if (gmailStatusText) {
+          gmailStatusText.textContent = "Checking...";
+          gmailStatusText.className = "email-status-pill";
+        }
+
+        let detectRes;
+        try {
+          detectRes = await new Promise((resolve) => {
+            chrome.runtime.sendMessage(
+              { type: "DETECT_GMAIL", targetEmail: normalizedEmail },
+              resolve
+            );
+          });
+        } catch (err) {
+          detectRes = null;
+        }
+
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = originalBtnHtml;
+        }
+
+        if (!detectRes || !detectRes.success || !detectRes.accounts || detectRes.accounts.length === 0) {
+          if (gmailStatusText) {
+            gmailStatusText.textContent = "Not logged in";
+            gmailStatusText.className = "email-status-pill error";
+          }
+          lastVerifiedEmail = "";
+          showToast("No active browser session found for this email. Sign into Gmail or leave blank for Manual OTP.", "error");
+          gmailEmail.focus();
+          return;
+        }
+
+        const matched = detectRes.accounts.find(
+          (a) => a.email.toLowerCase() === normalizedEmail
+        );
+
+        if (!matched) {
+          if (gmailStatusText) {
+            gmailStatusText.textContent = "Not logged in";
+            gmailStatusText.className = "email-status-pill error";
+          }
+          lastVerifiedEmail = "";
+          const activeList = detectRes.accounts.map((a) => a.email).join(", ");
+          showToast(`Email not signed in here. Active accounts: ${activeList}`, "error");
+          gmailEmail.focus();
+          return;
+        }
+
+        // Verification succeeded! Bind slot & mark verified
+        targetSlot = matched.index;
+        gmailAccountIndex.value = matched.index;
+        lastVerifiedEmail = matched.email.toLowerCase();
+        if (gmailStatusText) {
+          gmailStatusText.textContent = "✓ Verified";
+          gmailStatusText.className = "email-status-pill verified";
+        }
+        finalOtpMode = "auto";
+      }
+    }
 
     const settings = {
-      erpRoll: erpRoll.value.trim(),
-      erpPassword: erpPassword.value,
+      erpRoll: roll,
+      erpPassword: pass,
       gmailEmail: emailVal,
-      gmailAccountIndex: parseInt(gmailAccountIndex.value, 10) || 0,
+      gmailAccountIndex: targetSlot,
       securityQuestions: questionsMap,
-      otpFetchMode: otpMode,
+      otpFetchMode: finalOtpMode,
       autoLogin: autoLoginToggle.checked,
     };
 
@@ -778,6 +879,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       chrome.storage.local.clear(() => {
         currentStoredData = {};
+        lastVerifiedEmail = "";
         erpRoll.value = "";
         erpPassword.value = "";
         gmailEmail.value = "";
