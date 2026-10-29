@@ -87,8 +87,8 @@ That's it. Next time you visit ERP, it logs in on its own.
 | **Windows / Linux** | `Alt + C` | Jump directly to CDC Notice Board |
 | **Windows / Linux** | `Alt + Z` | Jump directly to CDC Applications |
 | **macOS** | `Cmd + Shift + E` | Quick launch & auto-login to ERP |
-| **macOS** | `Cmd + Shift + C` | Jump directly to CDC Notice Board |
-| **macOS** | `Cmd + Shift + Z` | Jump directly to CDC Applications |
+| **macOS** | `Ctrl + Shift + C` | Jump directly to CDC Notice Board |
+| **macOS** | `Ctrl + Shift + Z` | Jump directly to CDC Applications |
 
 *(You can customize these hotkeys anytime at `chrome://extensions/shortcuts`)*
 
