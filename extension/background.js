@@ -904,7 +904,12 @@ function registerKeepAliveAlarm() {
   });
 }
 
-chrome.runtime.onInstalled.addListener(registerKeepAliveAlarm);
+chrome.runtime.onInstalled.addListener((details) => {
+  registerKeepAliveAlarm();
+  if (details && details.reason === "install") {
+    chrome.tabs.create({ url: "welcome.html" });
+  }
+});
 chrome.runtime.onStartup.addListener(registerKeepAliveAlarm);
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {

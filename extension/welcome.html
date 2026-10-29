@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to IIT KGP ERP Auto-Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #080f1d;
+      --bg-card: rgba(16, 28, 48, 0.7);
+      --bg-card-hover: rgba(22, 38, 64, 0.85);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(59, 130, 246, 0.4);
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.35);
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-muted: #8da2bb;
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.16) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Header */
+    .header-card {
+      text-align: center;
+      padding: 20px 24px 12px 24px;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 58px;
+      background: rgba(37, 99, 235, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .logo-badge img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Feature Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-highlight);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.12);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .badge-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2.5px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .badge-optional {
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #94a3b8;
+    }
+
+    .badge-highlight {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .card-body {
+      font-size: 12.5px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .card-body p + p {
+      margin-top: 8px;
+    }
+
+    .card-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .card-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-list li svg {
+      flex-shrink: 0;
+      margin-top: 3px;
+      color: #38bdf8;
+    }
+
+    /* Shortcuts Grid */
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      margin-bottom: 12px;
+    }
+
+    .shortcut-box {
+      background: rgba(8, 15, 27, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .shortcut-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .hotkey-keys {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .kbd {
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93c5fd;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      padding: 2px 6px;
+      border-radius: 5px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .kbd-sep {
+      color: #64748b;
+      font-size: 10px;
+    }
+
+    /* Button styles */
+    .action-btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 4px;
+    }
+
+    .link-btn {
+      background: none;
+      border: none;
+      color: #60a5fa;
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .link-btn:hover {
+      color: #93c5fd;
+      background: rgba(59, 130, 246, 0.12);
+    }
+
+    /* Footer Primary CTA */
+    .footer-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+      padding-bottom: 16px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      max-width: 380px;
+      height: 44px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .primary-btn:hover {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+    }
+
+    .primary-btn:active {
+      transform: translateY(0);
+    }
+
+    .sub-footer-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .sub-footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s ease;
+    }
+
+    .sub-footer-links a:hover {
+      color: #93c5fd;
+    }
+
+    @media (max-width: 540px) {
+      .shortcuts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header-card">
+      <div class="logo-badge">
+        <img src="icons/logo.png" alt="IIT KGP ERP Logo">
+      </div>
+      <h1 class="title">IIT KGP ERP Auto-Login</h1>
+      <p class="subtitle">Quick 30-second guide to get you up and running seamlessly.</p>
+    </header>
+
+    <!-- 1. Pin to Toolbar (Optional) -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="17" x2="12" y2="22"/>
+              <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/>
+            </svg>
+          </div>
+          <h2 class="card-title">Pin to Chrome Toolbar</h2>
+        </div>
+        <span class="badge-pill badge-optional">Optional</span>
+      </div>
+      <div class="card-body">
+        <p>Chrome hides new extensions under the puzzle icon. Click the <strong>puzzle icon (🧩)</strong> in your top-right Chrome bar, then click the <strong>Pin (📌)</strong> icon next to <em>IIT KGP ERP</em> so your dashboard and settings are always 1 click away.</p>
+      </div>
+    </section>
+
+    <!-- 2. How Auto-Login Works -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.12);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <h2 class="card-title">How Auto-Login Works</h2>
+        </div>
+        <span class="badge-pill badge-highlight">Fully Automated</span>
+      </div>
+      <div class="card-body">
+        <ul class="card-list">
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Setup once in the extension popup:</strong> Enter your Roll Number, Password, 3 security questions, and linked Gmail.</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Hands-free Sign In:</strong> Whenever you open ERP, it automatically fills your credentials, answers the security question, grabs the OTP from your signed-in Gmail, and signs you in.</span>
+          </li>
+          <li>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Always in your control:</strong> You can pause or resume Auto-Login anytime using the toggle switch in the popup, or switch to Manual OTP entry.</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. Global Shortcuts -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="16" x="2" y="4" rx="2"/>
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>
+            </svg>
+          </div>
+          <h2 class="card-title">Quick Launch Shortcuts</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>Press these hotkeys anywhere in your browser to jump instantly without typing URLs:</p>
+
+        <div class="shortcuts-grid">
+          <div class="shortcut-box">
+            <div class="shortcut-name">ERP &amp; Auto-Login</div>
+            <div class="hotkey-keys" id="hotkeyErp">
+              <span class="kbd">Alt</span>
+              <span class="kbd-sep">+</span>
+              <span class="kbd">X</span>
+            </div>
+          </div>
+          <div class="shortcut-box">
+            <div class="shortcut-name">CDC Notice Board</div>
+            <div class="hotkey-keys" id="hotkeyNotice">
+              <span class="kbd">Alt</span>
+              <span class="kbd-sep">+</span>
+              <span class="kbd">C</span>
+            </div>
+          </div>
+          <div class="shortcut-box">
+            <div class="shortcut-name">CDC Applications</div>
+            <div class="hotkey-keys" id="hotkeyCdc">
+              <span class="kbd">Alt</span>
+              <span class="kbd-sep">+</span>
+              <span class="kbd">Z</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-btn-row">
+          <button type="button" id="customizeShortcutsBtn" class="link-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Customize shortcuts in browser settings &rarr;</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Privacy Note -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <div class="card-icon" style="color: #34d399; background: rgba(16, 185, 129, 0.12);">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h2 class="card-title">100% Local &amp; Private</h2>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>The extension reads the OTP email locally from your active Gmail session. Your credentials and emails never leave your machine — zero external servers, zero telemetry, and zero tracking.</p>
+      </div>
+    </section>
+
+    <!-- Footer Actions -->
+    <footer class="footer-actions">
+      <button type="button" id="launchErpBtn" class="primary-btn">
+        <span>Open ERP Portal</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </button>
+
+      <div class="sub-footer-links">
+        <a href="https://github.com/Arnab-iitkgp/erp-auto-login-cli" target="_blank" rel="noopener noreferrer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+          </svg>
+          <span>Open Source on GitHub</span>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="welcome.js"></script>
+</body>
+</html>
