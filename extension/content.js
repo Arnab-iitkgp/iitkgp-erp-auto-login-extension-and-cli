@@ -834,22 +834,30 @@
 
   // Keyboard shortcut listeners
   window.addEventListener("keydown", (e) => {
+    const isMac =
+      navigator.platform.toUpperCase().indexOf("MAC") >= 0 ||
+      navigator.userAgent.toUpperCase().indexOf("MAC") >= 0;
+
     const isAltX = e.altKey && (e.key === "x" || e.key === "X");
     const isAltC = e.altKey && (e.key === "c" || e.key === "C");
     const isAltZ = e.altKey && (e.key === "z" || e.key === "Z");
     const isMacCmdShiftE =
-      (e.metaKey || e.ctrlKey) &&
+      (e.metaKey || (isMac && e.ctrlKey)) &&
       e.shiftKey &&
       (e.key === "e" || e.key === "E" || e.key === "x" || e.key === "X");
+    const isMacCtrlShiftC =
+      isMac && e.ctrlKey && e.shiftKey && (e.key === "c" || e.key === "C");
+    const isMacCtrlShiftZ =
+      isMac && e.ctrlKey && e.shiftKey && (e.key === "z" || e.key === "Z");
 
     if (isAltX || isMacCmdShiftE) {
       e.preventDefault();
       purgeClientStorage();
       chrome.runtime.sendMessage({ type: "FORCE_RELOGIN" });
-    } else if (isAltC) {
+    } else if (isAltC || isMacCtrlShiftC) {
       e.preventDefault();
       chrome.runtime.sendMessage({ type: "LAUNCH_CDC", url: "https://erp.iitkgp.ac.in/TrainingPlacementSSO/Notice.jsp" });
-    } else if (isAltZ) {
+    } else if (isAltZ || isMacCtrlShiftZ) {
       e.preventDefault();
       chrome.runtime.sendMessage({ type: "LAUNCH_CDC", url: "https://erp.iitkgp.ac.in/TrainingPlacementSSO/TPStudent.jsp" });
     }

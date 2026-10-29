@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const quickLaunchHome = document.getElementById("quickLaunchHome");
   const quickLaunchNotice = document.getElementById("quickLaunchNotice");
   const quickLaunchCdcApp = document.getElementById("quickLaunchCdcApp");
+  const openShortcutsSettingsBtn = document.getElementById("openShortcutsSettingsBtn");
   const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0 || navigator.userAgent.toUpperCase().indexOf("MAC") >= 0;
 
   // --- Unlock Settings Modal Elements ---
@@ -210,12 +211,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (hotkeyNotice) {
       hotkeyNotice.innerHTML = isMac
-        ? `<kbd class="hotkey-key">⌘</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Shift</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">C</kbd>`
+        ? `<kbd class="hotkey-key">⌃</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Shift</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">C</kbd>`
         : `<kbd class="hotkey-key">Alt</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">C</kbd>`;
     }
     if (hotkeyCdcApp) {
       hotkeyCdcApp.innerHTML = isMac
-        ? `<kbd class="hotkey-key">⌘</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Shift</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Z</kbd>`
+        ? `<kbd class="hotkey-key">⌃</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Shift</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Z</kbd>`
         : `<kbd class="hotkey-key">Alt</kbd><span class="hotkey-sep">+</span><kbd class="hotkey-key">Z</kbd>`;
     }
   }
@@ -712,6 +713,20 @@ document.addEventListener("DOMContentLoaded", () => {
         type: "LAUNCH_CDC",
         url: "https://erp.iitkgp.ac.in/TrainingPlacementSSO/TPStudent.jsp",
       }, () => window.close());
+    });
+  }
+
+  // Open browser's native extension shortcut configuration page
+  if (openShortcutsSettingsBtn) {
+    openShortcutsSettingsBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isEdge = navigator.userAgent.indexOf("Edg") !== -1;
+      const shortcutsUrl = isEdge ? "edge://extensions/shortcuts" : "chrome://extensions/shortcuts";
+      chrome.tabs.create({ url: shortcutsUrl }, () => {
+        if (chrome.runtime.lastError) {
+          chrome.tabs.create({ url: "chrome://extensions/shortcuts" });
+        }
+      });
     });
   }
 
