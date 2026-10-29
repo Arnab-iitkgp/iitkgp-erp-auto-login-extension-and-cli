@@ -378,7 +378,7 @@
         <div class="section-label-row">
           <span class="section-label">SECURITY QUESTIONS</span>
           <button type="button" id="fetchQuestionBtn" class="pill-detect-btn" title="Fetch all 3 questions from ERP in 1 click">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" x2="12" y1="15" y2="3"/>
@@ -647,7 +647,12 @@
               If multiple Google accounts are logged in, Google can reorder slots. In Settings, click <strong>Check</strong> next to <em>EMAIL FOR OTP</em> to link your active mailbox.
             </div>
           </div>
-
+          <div class="faq-item">
+            <div class="faq-q">Why does a Gmail tab briefly open and close in the background?</div>
+            <div class="faq-a">
+              On cold browser startup, Chrome doesn't load your Google session cookies into background extension requests until a Gmail page is visited. To fix this seamlessly, the extension automatically opens an inactive background Gmail tab to warm up your cookies and instantly closes it once hydrated &mdash; no manual tab opening required!
+            </div>
+          </div>
           <div class="faq-item">
             <div class="faq-q">What if ERP rejects an OTP?</div>
             <div class="faq-a">
@@ -669,10 +674,12 @@
             </div>
           </div>
 
+          
+
           <div class="faq-item">
             <div class="faq-q">"Gmail not signed in" error right after opening browser?</div>
             <div class="faq-a">
-              This is usually a false alarm. When the browser cold-starts, it can take a few seconds for your Gmail session cookies to become active. The extension now waits and retries for up to 20 seconds before showing this error. If it still appears, open Gmail in a tab, confirm you are signed in, then close and reopen the ERP tab.
+              This is usually a cold-start delay. The extension automatically launches a quick background warmup tab to hydrate your Gmail cookies. If the error still persists after 20 seconds, ensure you are genuinely signed into your Google account in this browser profile, then reload the ERP tab.
             </div>
           </div>
 
