@@ -48,3 +48,6 @@ store_assets/
 
 # Dev logs
 DECISION_LOG.md
+
+# Release packages
+*.zip
