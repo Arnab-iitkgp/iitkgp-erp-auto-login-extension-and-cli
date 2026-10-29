@@ -16,13 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Format hotkeys for Mac if applicable
   if (isMac) {
     if (hotkeyErp) {
-      hotkeyErp.innerHTML = `<span class="kbd">⌘</span><span class="kbd-sep">+</span><span class="kbd">Shift</span><span class="kbd-sep">+</span><span class="kbd">E</span>`;
+      hotkeyErp.innerHTML = `<span class="hotkey-key">⌘</span><span class="hotkey-sep">+</span><span class="hotkey-key">Shift</span><span class="hotkey-sep">+</span><span class="hotkey-key">E</span>`;
     }
     if (hotkeyNotice) {
-      hotkeyNotice.innerHTML = `<span class="kbd">⌃</span><span class="kbd-sep">+</span><span class="kbd">Shift</span><span class="kbd-sep">+</span><span class="kbd">C</span>`;
+      hotkeyNotice.innerHTML = `<span class="hotkey-key">⌃</span><span class="hotkey-sep">+</span><span class="hotkey-key">Shift</span><span class="hotkey-sep">+</span><span class="hotkey-key">C</span>`;
     }
     if (hotkeyCdc) {
-      hotkeyCdc.innerHTML = `<span class="kbd">⌃</span><span class="kbd-sep">+</span><span class="kbd">Shift</span><span class="kbd-sep">+</span><span class="kbd">Z</span>`;
+      hotkeyCdc.innerHTML = `<span class="hotkey-key">⌃</span><span class="hotkey-sep">+</span><span class="hotkey-key">Shift</span><span class="hotkey-sep">+</span><span class="hotkey-key">Z</span>`;
     }
   }
 
@@ -43,6 +43,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (launchErpBtn) {
     launchErpBtn.addEventListener("click", () => {
       chrome.tabs.create({ url: "https://erp.iitkgp.ac.in/IIT_ERP3/" });
+    });
+  }
+
+  // Dark mode toggle (Welcome page only, in-memory)
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
     });
   }
 });
